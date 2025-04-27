@@ -17,4 +17,4 @@
     + Khi click vào "Chat" trên thanh tiêu đề thì hệ thống sẽ chuyển đến trang chat giữa các sinh viên. Trang này sẽ có các chức năng cơ bản như 1 ứng dụng nhắn tin thông thường (dấu + ở phần gửi tin nhắn dùng để chọn file ảnh trên máy và gửi file)
 - Các chức năng như chat, bình luận, gửi nhận thông báo đều dùng web socket
 - Lược đồ E-R:
-![Lược đồ E-R](Screenshot 2025-04-27 194257.png)
+    ![Lược đồ E-R](E_R.png)
