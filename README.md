@@ -18,4 +18,4 @@
 - Các chức năng như chat, bình luận, gửi nhận thông báo đều dùng web socket
 - Lược đồ E-R:
     ![Lược đồ E-R](E_R.png)
-- Lưu ý: Khi up file lên trên project thì hãy đổi giá trị của UPLOAD_DIR thành đường dẫn đến thư mục "react/my-app/public/images/" được lưu ở trên máy bằng đường dẫn tuyệt đối
+- Lưu ý: Khi up file lên trên project thì hãy đổi giá trị của UPLOAD_DIR trong class Admin, ThuThu và SinhVien trong package controller trong be thành đường dẫn đến thư mục "react/my-app/public/images/" được lưu ở trên máy bằng đường dẫn tuyệt đối
