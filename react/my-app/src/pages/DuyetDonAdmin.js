@@ -43,7 +43,7 @@ const DuyetDon=()=>{
     return(
         <div className="duyet_thu_thu">
             <HeaderAdmin/>
-            <table style={{width:"60%"}}>
+            <table style={{width:"100%"}}>
                 <tr>
                     <th>ID sinh viên</th>
                     <th style={{width:"40%"}}>Lý do</th>

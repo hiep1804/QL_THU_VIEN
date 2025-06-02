@@ -176,6 +176,7 @@ code {
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+
 }
 
 .tt_sach_l .sach:hover {
@@ -317,12 +318,12 @@ code {
 }
 
 .tt_sach_r input[type="number"] {
-  -moz-appearance: textfield; /* Remove Firefox number spinners */
+  -moz-appearance: textfield;
 }
 
 .tt_sach_r input[type="number"]::-webkit-inner-spin-button,
 .tt_sach_r input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none; /* Remove Chrome number spinners */
+  -webkit-appearance: none; 
   margin: 0;
 }
 
@@ -352,7 +353,7 @@ code {
   font-size: 0.9rem;
   text-align: center;
   margin-top: 15px;
-  min-height: 20px; /* Reserve space for error message */
+  min-height: 20px; 
 }
 .menuSachTT{
   width:20%;
@@ -429,7 +430,7 @@ code {
 }
 
 .duyet_thu_thu button:first-of-type {
-  background-color: #28a745; /* xanh lá */
+  background-color: #28a745; 
   color: white;
 }
 
@@ -438,7 +439,7 @@ code {
 }
 
 .duyet_thu_thu button:last-of-type {
-  background-color: #dc3545; /* đỏ */
+  background-color: #dc3545; 
   color: white;
 }
 
@@ -520,7 +521,7 @@ code {
 .thu-thu-gui-thong-bao button:active {
   background-color: #004085;
 }
-/* Cha chứa toàn bộ phần giao diện sách + đánh giá */
+
 .sinh-vien-sach {
   max-width: 1000px;
   margin: 40px auto;
@@ -531,7 +532,7 @@ code {
   font-family: "Segoe UI", sans-serif;
 }
 
-/* Phần hiển thị sách */
+
 .sinh-vien-sach .sach {
   display: flex;
   flex-wrap: wrap;
@@ -591,7 +592,6 @@ code {
 }
 
 
-/* Form nhập đánh giá */
 .sinh-vien-sach .danh-gia {
   display: flex;
   margin-bottom: 20px;
@@ -619,7 +619,7 @@ code {
   background-color: #218838;
 }
 
-/* Comment */
+
 .sinh-vien-sach .comment {
   background-color: white;
   padding: 12px 16px;
@@ -643,7 +643,7 @@ code {
   color: gray;
 }
 
-/* Phân trang */
+
 .sinh-vien-sach .pagination {
   display: flex;
   justify-content: center;
@@ -670,7 +670,7 @@ code {
   background-color: orange;
   color: white;
 }
-/* Giả sử bạn lưu trong BorrowTable.css và import vào component */
+
 .borrow-container {
   background-color: #f9f9f9;
   min-height: 100vh;
@@ -1056,11 +1056,11 @@ ul.chat-box {
 }
 
 .img.right {
-  margin-left: auto; /* đẩy ảnh về bên phải */
+  margin-left: auto; 
 }
 
 .img.left {
-  margin-right: auto; /* đẩy ảnh về bên trái */
+  margin-right: auto; 
 }
 .chat-left .tim-kiem input{
   display: block;
@@ -1106,4 +1106,93 @@ ul.chat-box {
   border-radius: 3px;
   background-color: rgba(0, 0, 255, 0.5);
   margin: 15px auto;
+}
+/* Reset float cho toàn bộ container */
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+    clear:both;
+}
+
+/* Style cho các nút pagination */
+.pagination-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    min-width: 40px;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.pagination-btn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.pagination-btn:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+
+/* Style cho nút previous */
+.prev-btn,.so-btn {
+    margin-right: 5px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .pagination-container {
+        gap: 10px;
+    }
+    
+    .pagination-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+        min-width: 35px;
+    }
+    
+    .pagination-items {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+}
+
+/* Clear float cho các phần tử con nếu cần */
+.pagination-container * {
+    float: none !important;
+}
+
+/* Alternative style - nếu muốn style khác */
+.pagination-container.modern {
+    background-color: white;
+    border-radius: 8px;
+    padding: 10px 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-container.modern .pagination-btn {
+    background-color: transparent;
+    color: #007bff;
+    border: 1px solid #007bff;
+}
+
+.pagination-container.modern .pagination-btn:hover:not(:disabled) {
+    background-color: #007bff;
+    color: white;
 }
