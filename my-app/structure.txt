@@ -1,0 +1,50 @@
++---public
+|   |   favicon.ico
+|   |   index.html
+|   |   logo192.png
+|   |   logo512.png
+|   |   manifest.json
+|   |   robots.txt
+|   |   
+|   \---images                                   # Thư mục để lưu ảnh avt, tin nhắn,... được gửi lên từ fe
+|           
+\---src
+    |   index.css                                # file để thêm css vào trang web
+    |   index.js      
+    |   
+    +---assets                                   # Thư mục để chứ các file css
+    |       headerAdmin.css                      # file chứa css liên kết với HeaderAdmin.js trong layouts
+    |       headerSinhVien.css                   # file chứa css liên kết với headerSinhVien.js trong layouts
+    |       headerThuThu.css                     # file chứa css liên kết với headerThuThu.js trong layouts
+    |       profile.css                          # file chứa css liên kết với HeaderAdmin.js trong layouts
+    |       
+    +---layouts
+    |       HeaderAdmin.js                       # file chứa component của header các trang có role admin
+    |       headerSinhVien.js                    # file chứa component của header các trang có role sinh viên
+    |       headerThuThu.js                      # file chứa component của header các trang có role thủ thư
+    |       
+    +---pages
+    |       AdminDashboard.js                    # file chứa component profile trang có role admin
+    |       Chat.js                              # file chứa các component liên quan đến chức năng chat của sinh viên
+    |       DuyetDonAdmin.js                     # file chứa các component liên quan đến chức năng duyệt đơn làm thủ thư của admin
+    |       LichSuSinhVien.js                    # file chứa các component liên quan đến chức năng xem lịch sử mượn sách của sinh viên
+    |       Login.js                             # file chứa component liên quan đến chức năng đăng nhập của user
+    |       Logout.js                            # file chứa component liên quan đến chức năng đăng xuất của user
+    |       Register.js                          # file chứa component liên quan đến chức năng đăng ký của user
+    |       SinhVienHome.js                      # file chứa component profile trang có role sinh viên
+    |       SinhVienMuonSach.js                  # file chứa các component để sinh viên có thể xem và tìm kiếm sách để mượn
+    |       SinhVienSach.js                      # file chứa các component liên quan đến chức năng mượn, trả, bình luận sách của sinh viên
+    |       SinhVienXinTT.js                     # file chứa các component liên quan đến chức năng xin làm thủ thư của sinh viên
+    |       test.js                              # file này chỉ dùng để test trước khi đưa vào code chính
+    |       ThuThuDuyetYeuCau.js                 # file chứa các component liên quan đến chức năng duyệt yêu cầu mượn, trả mượn sách của thủ thư
+    |       ThuThuGuiThongBao.js                 # file chứa các component liên quan đến chức năng gửi thông báo của thủ thư
+    |       ThuThuHome.js                        # file chứa component profile trang có role thủ thư
+    |       ThuThuSach.js                        # file chứa các component liên quan đến chức năng quản lý sách (tìm, thêm, sửa, xóa) của thủ thư
+    |       
+    \---routes
+            PrivateRoute.js                      # file này có chức năng xác thực trước khi chuyển đến 1 url nào đó cần xác thực
+            RR.js                                # file này có chức năng phân trang các component
+|   .gitignore
+|   package-lock.json
+|   package.json
+|   README.md

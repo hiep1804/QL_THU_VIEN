@@ -1,4 +1,4 @@
-- Thư mục sc dùng để chạy be (springboot), thư mục react dùng để chạy fe (reactjs)
+- Thư mục sc dùng để chạy be (springboot), thư mục my-app dùng để chạy fe (reactjs)
 - Hệ thống quản lý thư viện với user gồm 3 quyền: admin, thu_thu và sinh_vien
 - Khi chạy hệ thống giao diện login sẽ hiện ra với tên đăng nhập là sdt và password (tất cả user trong csdl đều có password là 12345) và với 1 giao diện đăng ký nếu chưa có tài khoản. Mỗi user đăng ký sẽ có quyền là sinh_vien
 - Khi đăng nhập thành công thì nó sẽ chuyển đến các trang phù hợp với các role (đều chuyển đến các trang profile theo các role)
@@ -18,4 +18,4 @@
 - Các chức năng như chat, bình luận, gửi nhận thông báo đều dùng web socket
 - Lược đồ E-R:
     ![Lược đồ E-R](E_R.png)
-- Lưu ý: Khi up file lên trên project thì hãy đổi giá trị của UPLOAD_DIR trong class Admin, ThuThu và SinhVien trong package controller trong be thành đường dẫn đến thư mục "react/my-app/public/images/" được lưu ở trên máy bằng đường dẫn tuyệt đối
+- Lưu ý: Khi up file lên trên project thì hãy đổi giá trị của UPLOAD_DIR trong class Admin, ThuThu và SinhVien trong package controller trong be thành đường dẫn đến thư mục "my-app/public/images/" được lưu ở trên máy bằng đường dẫn tuyệt đối
