@@ -17,9 +17,8 @@ public class CorsConfig {
                         .allowedOrigins("http://localhost:3000")
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowedHeaders("*")
-                        .exposedHeaders("Authorization"); // 👈 Quan trọng: Cho phép ReactJS đọc Authorization
+                        .exposedHeaders("Authorization");
             }
         };
     }
 }
-

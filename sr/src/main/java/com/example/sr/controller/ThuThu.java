@@ -40,6 +40,7 @@ public class ThuThu {
     private UserYeuCauService userYeuCauService;
     @Autowired
     private MuonTraService muonTraService;
+
     @PostMapping(value = "/profile", consumes = { "multipart/form-data" })
     public ResponseEntity<String> updateProfile(
             @RequestPart(value = "file", required = false) MultipartFile file,  // File có thể null
@@ -68,6 +69,7 @@ public class ThuThu {
         userService.suaUser(user);
         return ResponseEntity.ok("Cập nhật thành công!");
     }
+
     @PostMapping(value = "/sach",consumes = { "multipart/form-data" })
     public ResponseEntity<?> updateSach(
             @RequestPart(value = "file", required = false) MultipartFile file,  // File có thể null
@@ -98,6 +100,7 @@ public class ThuThu {
         sachService.themSach(sach);
         return ResponseEntity.ok("Thêm sách thành công!");
     }
+
     @GetMapping("/sach/data")
     public ResponseEntity<?> selectFullSach(@RequestParam String tim){
         List<Sach> sachList=sachService.findAll();
@@ -127,6 +130,7 @@ public class ThuThu {
             return ResponseEntity.ok(sachList2);
         }
     }
+
     @GetMapping("/sach/sua")
     public ResponseEntity<?> selectSach(@RequestParam(value = "timKiem") String timKiem){
         try{
@@ -138,6 +142,7 @@ public class ThuThu {
             return ResponseEntity.badRequest().body(Map.of("error", "Không có sách này"));
         }
     }
+
     @PostMapping(value="/sach/sua/sach",consumes = { "multipart/form-data" })
     public ResponseEntity<?> selectSach2(@RequestPart(value = "file", required = false) MultipartFile file,  // File có thể null
                                          @RequestPart("sach") String sachJson) throws IOException{
@@ -162,11 +167,13 @@ public class ThuThu {
         sachService.themSach(sach);
         return ResponseEntity.ok("Sửa sách thành công!");
     }
+
     @PostMapping("/sach/xoa")
     public ResponseEntity<?> selectSach3(@RequestBody Sach sach){
         sachService.delete(sach);
         return ResponseEntity.ok("Xóa sách thành công");
     }
+
     @PostMapping("/gui-thong-bao")
     public ResponseEntity<?> selectGuiThongBao(@RequestBody ThuThuGuiThongBao tb) throws JsonProcessingException {
         User u=userService.getById(Integer.parseInt(tb.getId_nguoi_nhan()));
@@ -186,6 +193,7 @@ public class ThuThu {
         template.convertAndSend("/topic/thong-bao",json);
         return ResponseEntity.ok("Bạn đã thông báo thành công");
     }
+
     @PostMapping("/duyet-yeu-cau")
     public ResponseEntity<?> selectDuyet(){
         List<UserYeuCau> userYeuCaus=userYeuCauService.getDanhSachDon("muon_sach","moi_xin");
@@ -198,6 +206,7 @@ public class ThuThu {
         }
         return ResponseEntity.ok(duyetDonAdmins);
     }
+    
     @GetMapping("/duyet-yeu-cau/xu-li")
     public ResponseEntity<?> updateYeuCauXin(@RequestParam(value="loai") String loai,
                                              @RequestParam(value="i") int i,

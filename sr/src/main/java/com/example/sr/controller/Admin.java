@@ -41,6 +41,7 @@ public class Admin {
     private ObjectMapper objectMapper;
     @Autowired
     private SimpMessagingTemplate template;
+
     @PostMapping(value = "/profile", consumes = { "multipart/form-data" })
     public ResponseEntity<String> updateProfile(
             @RequestPart(value = "file", required = false) MultipartFile file,  // File có thể null
@@ -69,6 +70,7 @@ public class Admin {
         userService.suaUser(user);
         return ResponseEntity.ok("Cập nhật thành công!");
     }
+
     @PostMapping("/duyet-don-xin-thu-thu")
     public ResponseEntity<?> updateYeuCau(){
         List<UserYeuCau> userYeuCaus=userYeuCauService.getDanhSachDon("xin_lam_thu_thu","moi_xin");
@@ -83,6 +85,7 @@ public class Admin {
         }
         return ResponseEntity.ok(duyet);
     }
+    
     @GetMapping("/duyet-don-xin-thu-thu/xu-li")
     public ResponseEntity<?> updateYeuCauXin(@RequestParam(value="loai") String loai,@RequestParam(value="i") int i,@RequestParam(value="id") int id ) throws JsonProcessingException {
         UserYeuCau uy=userYeuCauService.getDanhSachDon(i);

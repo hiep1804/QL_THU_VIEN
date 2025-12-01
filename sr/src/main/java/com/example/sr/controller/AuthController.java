@@ -35,6 +35,7 @@ public class AuthController {
     }
     @Autowired
     private UserRepository userRepository;
+
     @PostMapping("login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -51,6 +52,7 @@ public class AuthController {
         return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .body(ug);
     }
+
     @GetMapping("")
     public ResponseEntity<?> getCurrentUser() {
         try{
@@ -61,6 +63,7 @@ public class AuthController {
         }
 
     }
+    
     @PostMapping("register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
         User user = new User();

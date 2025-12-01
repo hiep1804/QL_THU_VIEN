@@ -53,6 +53,7 @@ public class SinhVien {
     private SimpMessagingTemplate template;
     @Autowired
     private ChatService chatService;
+
     @PostMapping(value = "/profile", consumes = { "multipart/form-data" })
     public ResponseEntity<String> updateProfile(
             @RequestPart(value = "file", required = false) MultipartFile file,  // File có thể null
@@ -81,6 +82,7 @@ public class SinhVien {
         userService.suaUser(user);
         return ResponseEntity.ok("Cập nhật thành công!");
     }
+
     @PostMapping("/xin-lam-thu-thu")
     public ResponseEntity<String> updateXinLamThu(@RequestBody YeuCauUserDTO yeuCauUserDTO) {
         User u=userService.getUserBySdtAndPassword(yeuCauUserDTO.getId());
@@ -111,6 +113,7 @@ public class SinhVien {
             return ResponseEntity.ok("Đã thêm thành công");
         }
     }
+
     @PostMapping("/thong-bao")
     public ResponseEntity<?> getAllTB(@RequestBody Map<String, Integer> payload) {
         List<ThongBao> getThongBaoByUserId=thongBaoService.getThongBaoByUserId(payload.get("id"));
@@ -121,6 +124,7 @@ public class SinhVien {
         Collections.reverse(tb);
         return ResponseEntity.ok(tb);
     }
+
     @GetMapping("/sach")
     public ResponseEntity<?> selectFullSach(@RequestParam String tim){
         List<Sach> sachList=sachService.findAll();
@@ -150,6 +154,7 @@ public class SinhVien {
             return ResponseEntity.ok(sachList2);
         }
     }
+
     @GetMapping("/data-sach")
     public ResponseEntity<?> selectDataSach(@RequestParam String id){
         int i=Integer.parseInt(id);
@@ -157,6 +162,7 @@ public class SinhVien {
         SachDTO dto=new SachDTO(s.getId(),s.getName(),s.getSl(),s.getDanhMuc(),s.getTacGia(),s.getAvt());
         return ResponseEntity.ok(dto);
     }
+
     @GetMapping("/muon-sach")
     public ResponseEntity<?> selectMuonSach(@RequestParam String id, @RequestParam String id_nguoi) throws JsonProcessingException {
         int i=Integer.parseInt(id);
@@ -182,6 +188,7 @@ public class SinhVien {
         }
         else   return ResponseEntity.badRequest().body("Sách này đã hết");
     }
+
     @GetMapping("/tra-sach")
     public ResponseEntity<?> selectTraSach(@RequestParam String id, @RequestParam String id_nguoi) throws JsonProcessingException {
         int i=Integer.parseInt(id);
@@ -208,6 +215,7 @@ public class SinhVien {
         }
         else   return ResponseEntity.badRequest().body("Bạn chưa mượn sách này");
     }
+
     @PostMapping("/comment-sach")
     public ResponseEntity<?> selectCommentSach(@RequestBody Map<String, Object> id){
         Integer iD = Integer.parseInt((String)id.get("id")) ;
@@ -225,6 +233,7 @@ public class SinhVien {
         Collections.reverse(danhGiaDTOS);
         return ResponseEntity.ok(danhGiaDTOS);
     }
+
     @MessageMapping("/nhan-danh-gia")
     @SendTo("/topic/danh-gia")
     public DanhGiaDTO getDanhGia(DanhGiaInputDto dg){
@@ -236,6 +245,7 @@ public class SinhVien {
         DanhGiaDTO danhGiaDTO=new DanhGiaDTO(danhGia.getUser().getId(),danhGia.getSach().getId(),danhGia.getUser().getName(),danhGia.getNd(),danhGia.getTime());
         return danhGiaDTO;
     }
+
     @PostMapping("/lich-su")
     public ResponseEntity<?> selectLichSu(@RequestBody Map<String, Object> i){
         int id= (Integer)i.get("id");
@@ -247,6 +257,7 @@ public class SinhVien {
         Collections.reverse(ls);
         return ResponseEntity.ok(ls);
     }
+
     @PostMapping("/chat/{id}")
     public ResponseEntity<?> selectChat(@PathVariable Integer id){
         List<Chat> userAll=chatService.findByIdNguoi(id);
@@ -273,6 +284,7 @@ public class SinhVien {
         }
         return ResponseEntity.ok(userChatDTOS);
     }
+
     @PostMapping("/mess/{id1}/{id2}")
     public ResponseEntity<?> selectMess(@PathVariable Integer id1,@PathVariable Integer id2){
         List<Chat> chats=chatService.findMess(id1,id2);
@@ -294,6 +306,7 @@ public class SinhVien {
         }
         return ResponseEntity.ok(messDTOS);
     }
+
     @MessageMapping("/nhan-tin-nhan")
     @SendTo("/topic/chat")
     public MessDTO getNhanTinNhan(ChatInputDTO chatInputDTO) throws Exception{
@@ -317,6 +330,7 @@ public class SinhVien {
         messDTO.setId_nhan(c.getNguoiNhan().getId());
         return messDTO;
     }
+
     @PostMapping("/upload/images")
     public ResponseEntity<String> handleFileUpload(@RequestPart("file") MultipartFile file) {
         if (file == null || file.isEmpty()) {
@@ -336,6 +350,7 @@ public class SinhVien {
             return ResponseEntity.status(500).body("Lỗi lưu file: " + e.getMessage());
         }
     }
+    
     @PostMapping("/chat/user/{id}")
     public ResponseEntity<?> selectChatUser(@PathVariable Integer id,@RequestBody Map<String,Object> map){
         String tk=(String)map.get("tk");
