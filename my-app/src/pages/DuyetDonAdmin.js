@@ -1,67 +1,126 @@
-import axios from "axios";
-import HeaderAdmin from "../layouts/HeaderAdmin";
-import { useState,useEffect } from "react";
-const DuyetDon=()=>{
-    const [list,setList]=useState(null);
-    const token=localStorage.getItem("token");
-    useEffect(()=>{
-        const goi=async ()=>{
-            try{
-                const res=await axios.post("http://localhost:8080/admin/duyet-don-xin-thu-thu",{},
+import axios from 'axios';
+import { useState, useEffect } from 'react';
+import HeaderAdmin from '../layouts/HeaderAdmin';
+
+/**
+ * Component duyệt đơn xin làm thủ thư
+ */
+const DuyetDonAdmin = () => {
+    const [applicationList, setApplicationList] = useState(null);
+    const token = localStorage.getItem('token');
+
+    // Tải danh sách đơn xin làm thủ thư
+    useEffect(() => {
+        const fetchApplications = async () => {
+            try {
+                const response = await axios.post(
+                    'http://localhost:8080/admin/duyet-don-xin-thu-thu',
+                    {},
                     {
-                        headers:{
-                            Authorization: token
-                        }
+                        headers: {
+                            Authorization: token,
+                        },
                     }
                 );
-                setList(res.data);
-                console.log(res.data);
-            }
-            catch(err){
-                console.log(err);
+                setApplicationList(response.data);
+                console.log('Danh sách đơn:', response.data);
+            } catch (error) {
+                console.error('Lỗi tải danh sách đơn:', error);
             }
         };
-        goi();
-    },[]);
-    const handle=async (e,loai,id,i)=>{
+
+        fetchApplications();
+    }, []);
+
+    /**
+     * Xử lý duyệt/từ chối đơn xin
+     * @param {Event} e - Sự kiện click button
+     * @param {string} actionType - Loại hành động: 'dy' (đồng ý) hoặc 'tc' (từ chối)
+     * @param {number} studentId - ID sinh viên
+     * @param {number} applicationIndex - Chỉ số đơn xin trong danh sách
+     */
+    const handleApplicationDecision = async (e, actionType, studentId, applicationIndex) => {
         e.preventDefault();
-        try{
-            const res=await axios.get("http://localhost:8080/admin/duyet-don-xin-thu-thu/xu-li",{
-                params:{loai,id,i},
-                headers:{
-                    Authorization: token,
-                    "Content-Type": "application/json"
+        try {
+            const response = await axios.get(
+                'http://localhost:8080/admin/duyet-don-xin-thu-thu/xu-li',
+                {
+                    params: {
+                        loai: actionType,
+                        id: studentId,
+                        i: applicationIndex,
+                    },
+                    headers: {
+                        Authorization: token,
+                        'Content-Type': 'application/json',
+                    },
                 }
-            });
-            alert(res.data);
+            );
+            alert(response.data);
+
+            // Xóa đơn xin khỏi danh sách
+            setApplicationList(
+                applicationList.filter((application) => application.i !== applicationIndex)
+            );
+        } catch (error) {
+            console.error('Lỗi xử lý đơn xin:', error);
         }
-        catch(err){
-            console.log(err);
-        }
-        setList(list.filter(l=>l.i!==i));
-    }
-    return(
+    };
+
+    const ACTION_APPROVE = 'dy';
+    const ACTION_REJECT = 'tc';
+    const APPROVE_TEXT = 'Đồng ý';
+    const REJECT_TEXT = 'Từ chối';
+
+    return (
         <div className="duyet_thu_thu">
-            <HeaderAdmin/>
-            <table style={{width:"100%"}}>
-                <tr>
-                    <th>ID sinh viên</th>
-                    <th style={{width:"40%"}}>Lý do</th>
-                    <th>Thời gian</th>
-                    <th style={{width:"10%"}}>Đồng ý</th>
-                    <th style={{width:"10%"}}>Từ chối</th>
-                </tr>
-                {list&&list.map((l)=>(
-                    <tr key={l.id}>
-                        <td style={{textAlign:"center"}}>{l.id}</td>
-                        <td>{l.noiDung}</td>
-                        <td style={{textAlign:"center"}}>{new Date(l.date).toLocaleString()}</td>
-                        <td><button type="button" style={{width:"100%"}} onClick={(e)=>handle(e,'dy',l.id,l.i)}>Đồng ý</button></td>
-                        <td><button type="button" style={{width:"100%"}} onClick={(e)=>handle(e,'tc',l.id,l.i)}>Từ chối</button></td>
+            <HeaderAdmin />
+            <table style={{ width: '100%' }}>
+                <thead>
+                    <tr>
+                        <th>ID sinh viên</th>
+                        <th style={{ width: '40%' }}>Lý do</th>
+                        <th>Thời gian</th>
+                        <th style={{ width: '10%' }}>Đồng ý</th>
+                        <th style={{ width: '10%' }}>Từ chối</th>
                     </tr>
-                ))}
+                </thead>
+                <tbody>
+                    {applicationList && applicationList.map((application) => (
+                        <tr key={application.id}>
+                            <td style={{ textAlign: 'center' }}>{application.id}</td>
+                            <td>{application.noiDung}</td>
+                            <td style={{ textAlign: 'center' }}>
+                                {new Date(application.date).toLocaleString('vi-VN')}
+                            </td>
+                            <td>
+                                <button
+                                    type="button"
+                                    style={{ width: '100%' }}
+                                    onClick={(e) =>
+                                        handleApplicationDecision(e, ACTION_APPROVE, application.id, application.i)
+                                    }
+                                >
+                                    {APPROVE_TEXT}
+                                </button>
+                            </td>
+                            <td>
+                                <button
+                                    type="button"
+                                    style={{ width: '100%' }}
+                                    onClick={(e) =>
+                                        handleApplicationDecision(e, ACTION_REJECT, application.id, application.i)
+                                    }
+                                >
+                                    {REJECT_TEXT}
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
             </table>
         </div>
     );
-}
-export default DuyetDon;
+};
+
+export default DuyetDonAdmin;

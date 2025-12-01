@@ -1,56 +1,77 @@
-import axios from "axios";
-import { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import axios from 'axios';
+import { useEffect, useState, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
-import HeaderSinhVien from "../layouts/headerSinhVien";
-const token = localStorage.getItem("token");
-const user = JSON.parse(localStorage.getItem("user"));
-export default function Sach() {
+import HeaderSinhVien from '../layouts/HeaderSinhVien';
+
+const token = localStorage.getItem('token');
+const user = JSON.parse(localStorage.getItem('user'));
+
+/**
+ * Component chi tiết sách và đánh giá
+ */
+export default function SinhVienSach() {
     const { id } = useParams();
-    const [sach, setSach] = useState(null);
+    const [book, setBook] = useState(null);
     const [comments, setComments] = useState([]);
-    const [inp, setInp] = useState('');
+    const [commentInput, setCommentInput] = useState('');
     const clientRef = useRef(null);
-    const id_nguoi = user.id;
+    const userId = user.id;
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 4;
+
+    // API URLs
+    const BOOK_API_URL = 'http://localhost:8080/sinh-vien/data-sach';
+    const COMMENTS_API_URL = 'http://localhost:8080/sinh-vien/comment-sach';
+    const BORROW_API_URL = 'http://localhost:8080/sinh-vien/muon-sach';
+    const RETURN_API_URL = 'http://localhost:8080/sinh-vien/tra-sach';
+
+    // Tải dữ liệu sách và bình luận
     useEffect(() => {
-        const s = async () => {
+        const fetchBookData = async () => {
             try {
-                const res = await axios.get("http://localhost:8080/sinh-vien/data-sach", {
+                const bookResponse = await axios.get(BOOK_API_URL, {
                     params: { id },
                     headers: {
                         Authorization: token,
-                        "Content-Type": "application/json"
-                    }
+                        'Content-Type': 'application/json',
+                    },
                 });
-                setSach(res.data);
-                const res1 = await axios.post("http://localhost:8080/sinh-vien/comment-sach", { id }, {
-                    headers: {
-                        Authorization: token,
-                        "Content-Type": "application/json"
+                setBook(bookResponse.data);
+
+                const commentsResponse = await axios.post(
+                    COMMENTS_API_URL,
+                    { id },
+                    {
+                        headers: {
+                            Authorization: token,
+                            'Content-Type': 'application/json',
+                        },
                     }
-                });
-                setComments(res1.data);
+                );
+                setComments(commentsResponse.data);
+            } catch (error) {
+                console.error('Lỗi tải dữ liệu sách:', error);
             }
-            catch (err) {
-                console.log(err);
-            }
-        }
-        s();
+        };
+
+        fetchBookData();
+
+        // Kết nối WebSocket để nhận đánh giá real-time
         const socket = new SockJS('http://localhost:8080/ws');
         const client = new Client({
             webSocketFactory: () => socket,
             onConnect: () => {
-                console.log('Connected to WebSocket đánh giá');
+                console.log('Kết nối WebSocket đánh giá thành công');
                 client.subscribe('/topic/danh-gia', (message) => {
                     const data = JSON.parse(message.body);
-                    console.log(data.id_sach, id);
-                    if (data.id_sach + '' === id) setComments((prev) => [data, ...prev]);
+                    if (data.id_sach + '' === id) {
+                        setComments((prev) => [data, ...prev]);
+                    }
                 });
             },
-            onDisconnect: () => console.log('Disconnected đánh giá'),
+            onDisconnect: () => console.log('Ngắt kết nối WebSocket'),
             debug: (str) => console.log(str),
         });
 
@@ -61,6 +82,8 @@ export default function Sach() {
             client.deactivate();
         };
     }, []);
+
+    // Kiểm tra và cập nhật trang hiện tại khi comments thay đổi
     useEffect(() => {
         const totalPages = Math.ceil(comments.length / itemsPerPage);
         if (currentPage > totalPages) {
@@ -68,110 +91,148 @@ export default function Sach() {
         }
     }, [comments, currentPage, itemsPerPage]);
 
-    const totalPages = Math.ceil(comments.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const selectedComments = comments.slice(startIndex, startIndex + itemsPerPage);
-    const sendMessage = (e) => {
+    /**
+     * Format thời gian bình luận
+     * @param {string} timestamp - Thời gian từ server
+     * @returns {string} - Thời gian đã format
+     */
+    const formatCommentTime = (timestamp) => {
+        return new Date(timestamp).toLocaleString('vi-VN');
+    };
+
+    /**
+     * Gửi bình luận/đánh giá
+     */
+    const handleSendComment = (e) => {
         e.preventDefault();
-        if (clientRef.current && inp.trim() !== '') {
-            const dg = {
-                id_nguoi: id_nguoi,
+        if (clientRef.current && commentInput.trim() !== '') {
+            const review = {
+                id_nguoi: userId,
                 id_sach: id,
-                nd: inp
+                nd: commentInput,
             };
             clientRef.current.publish({
                 destination: '/app/nhan-danh-gia',
-                body: JSON.stringify(dg),
+                body: JSON.stringify(review),
             });
-            setInp('');
+            setCommentInput('');
         }
     };
-    const muon = async (e) => {
+
+    /**
+     * Xử lý mượn sách
+     */
+    const handleBorrowBook = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.get("http://localhost:8080/sinh-vien/muon-sach", {
-                params: { id, id_nguoi },
+            const response = await axios.get(BORROW_API_URL, {
+                params: { id, id_nguoi: userId },
                 headers: {
                     Authorization: token,
-                    "Content-Type": "application/json"
-                }
+                    'Content-Type': 'application/json',
+                },
             });
-            alert(res.data);
+            alert(response.data);
+        } catch (error) {
+            console.error('Lỗi mượn sách:', error);
+            alert(error.response?.data || 'Lỗi mượn sách');
         }
-        catch (err) {
-            console.log(err);
-            alert(err.response.data);
-        }
-    }
-    const tra = async (e) => {
+    };
+
+    /**
+     * Xử lý trả sách
+     */
+    const handleReturnBook = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.get("http://localhost:8080/sinh-vien/tra-sach", {
-                params: { id, id_nguoi },
+            const response = await axios.get(RETURN_API_URL, {
+                params: { id, id_nguoi: userId },
                 headers: {
                     Authorization: token,
-                    "Content-Type": "application/json"
-                }
+                    'Content-Type': 'application/json',
+                },
             });
-            alert(res.data);
+            alert(response.data);
+        } catch (error) {
+            console.error('Lỗi trả sách:', error);
+            alert(error.response?.data || 'Lỗi trả sách');
         }
-        catch (err) {
-            console.log(err);
-            alert(err.response.data);
-        }
-    }
-    const time = (s) => {
-        const date = new Date(s).toLocaleString();
-        return date
-    }
+    };
+
+    // Tính toán phân trang
+    const totalPages = Math.ceil(comments.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const selectedComments = comments.slice(startIndex, startIndex + itemsPerPage);
+
     return (
         <div>
             <HeaderSinhVien />
-            <div style={{ padding: "20px" }} className="sinh-vien-sach">
-                {sach && (
+            <div style={{ padding: '20px' }} className="sinh-vien-sach">
+                {/* Thông tin sách */}
+                {book && (
                     <div className="sach">
-                        <img src={sach.avt} alt="sach" />
+                        <img src={book.avt} alt={book.name} />
                         <div className="sach-info">
-                            <p>{sach.name}</p>
-                            <p>{sach.danhMuc}</p>
-                            <p>{sach.tacGia}</p>
+                            <p>{book.name}</p>
+                            <p>{book.danhMuc}</p>
+                            <p>{book.tacGia}</p>
                             <div className="sach-buttons">
-                                <button type="button" onClick={(e) => muon(e)}>Mượn sách</button>
-                                <button type="button" onClick={(e) => tra(e)}>Trả sách</button>
+                                <button type="button" onClick={handleBorrowBook}>
+                                    Mượn sách
+                                </button>
+                                <button type="button" onClick={handleReturnBook}>
+                                    Trả sách
+                                </button>
                             </div>
                         </div>
                     </div>
                 )}
+
+                {/* Form bình luận */}
                 <form className="danh-gia">
                     <input
                         type="text"
-                        value={inp}
-                        onChange={(e) => setInp(e.target.value)}
-                        placeholder="Nhập tin nhắn"
+                        value={commentInput}
+                        onChange={(e) => setCommentInput(e.target.value)}
+                        placeholder="Nhập bình luận"
                     />
-                    <button onClick={(e) => sendMessage(e)}>Gửi</button>
+                    <button type="button" onClick={handleSendComment}>
+                        Gửi
+                    </button>
                 </form>
-                {comments && selectedComments.map((cm, idx) => (<div key={idx} className="comment">
-                    <p>{cm.name}</p>
-                    <p>{time(cm.time)}</p>
-                    <p>{cm.nd}</p>
-                </div>))}
-                {comments.length > 4 && <div className="pagination">
-                    {Array.from({ length: totalPages }, (_, i) => (
-                        <button
-                            key={i}
-                            onClick={() => setCurrentPage(i + 1)}
-                            style={{
-                                backgroundColor: currentPage === i + 1 ? "orange" : "#eee",
-                                borderRadius: "50%",
-                                width: 30, height: 30
-                            }}
-                        >
-                            {i + 1}
-                        </button>
+
+                {/* Danh sách bình luận */}
+                <div>
+                    {comments && selectedComments.map((comment, index) => (
+                        <div key={index} className="comment">
+                            <p>{comment.name}</p>
+                            <p>{formatCommentTime(comment.time)}</p>
+                            <p>{comment.nd}</p>
+                        </div>
                     ))}
                 </div>
-                }
+
+                {/* Phân trang */}
+                {comments.length > itemsPerPage && (
+                    <div className="pagination">
+                        {Array.from({ length: totalPages }, (_, index) => (
+                            <button
+                                key={index}
+                                type="button"
+                                onClick={() => setCurrentPage(index + 1)}
+                                className={`page-button ${currentPage === index + 1 ? 'active' : ''}`}
+                                style={{
+                                    backgroundColor: currentPage === index + 1 ? 'orange' : '#eee',
+                                    borderRadius: '50%',
+                                    width: '30px',
+                                    height: '30px',
+                                }}
+                            >
+                                {index + 1}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

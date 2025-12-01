@@ -1,39 +1,38 @@
-import HeaderThuThu from '../layouts/HeaderThuThu';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import HeaderAdmin from '../layouts/HeaderAdmin';
 
 /**
- * Component hồ sơ cá nhân thủ thư
+ * Component hồ sơ cá nhân admin
  */
-const Profile = () => {
+const AdminProfile = () => {
     const user = JSON.parse(localStorage.getItem('user'));
-    const { id, sdt, name: initialName, password: initialPassword, avt: initialAvt, role } = user;
+    const { id, name: initialName, password: initialPassword, sdt, avt: initialAvt, role } = user;
 
     const [name, setName] = useState(initialName);
     const [password, setPassword] = useState('');
     const [avatar, setAvatar] = useState(initialAvt);
-    const [error, setError] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
+    const [error, setError] = useState('');
     const token = localStorage.getItem('token');
-
-    // API URL
-    const PROFILE_API_URL = 'http://localhost:8080/thu-thu/profile';
 
     /**
      * Xử lý khi người dùng chọn file ảnh
      * @param {Event} event - Sự kiện input file
      */
     const handleFileChange = (event) => {
-        const selectedFile = event.target.files[0];
-        setSelectedFile(selectedFile);
+        const file = event.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+            console.log('File chọn:', file.name);
 
-        if (selectedFile) {
+            // Tạo preview URL
             const reader = new FileReader();
             reader.onload = (e) => {
                 setPreviewUrl(e.target.result);
             };
-            reader.readAsDataURL(selectedFile);
+            reader.readAsDataURL(file);
         }
     };
 
@@ -58,26 +57,38 @@ const Profile = () => {
             formData.append('file', selectedFile);
         }
 
-        const updatedUser = { id, name, password, sdt, role, avt: avatar };
+        const updatedUser = {
+            id,
+            name,
+            password,
+            sdt,
+            role,
+            avt: avatar,
+        };
+
         formData.append(
             'user',
             new Blob([JSON.stringify(updatedUser)], { type: 'application/json' })
         );
 
         try {
-            const response = await axios.post(PROFILE_API_URL, formData, {
-                headers: {
-                    Authorization: token,
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            const response = await axios.post(
+                'http://localhost:8080/admin/profile',
+                formData,
+                {
+                    headers: {
+                        Authorization: token,
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }
+            );
 
             // Cập nhật localStorage
             localStorage.setItem('user', JSON.stringify(updatedUser));
             alert(response.data);
         } catch (err) {
+            setError(err.message);
             console.error('Lỗi cập nhật hồ sơ:', err);
-            setError(err.response?.data || err.message);
         }
     };
 
@@ -152,21 +163,21 @@ const Profile = () => {
             </form>
 
             {/* Hiển thị lỗi nếu có */}
-            {error && <p className="error-message">{error}</p>}
+            {error && <p className="error">{error}</p>}
         </div>
     );
 };
 
 /**
- * Component dashboard cho thủ thư
+ * Component dashboard cho admin
  */
-const ThuThuHome = () => {
+const AdminDashboard = () => {
     return (
         <div>
-            <HeaderThuThu />
-            <Profile />
+            <HeaderAdmin />
+            <AdminProfile />
         </div>
     );
 };
 
-export default ThuThuHome;
+export default AdminDashboard;

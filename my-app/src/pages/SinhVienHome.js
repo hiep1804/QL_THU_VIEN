@@ -1,82 +1,168 @@
-import axios from "axios";
-import HeaderSinhVien from "../layouts/headerSinhVien";
-import { useState, useEffect } from "react";
+import axios from 'axios';
+import HeaderSinhVien from '../layouts/HeaderSinhVien';
+import { useState, useEffect } from 'react';
 import '../assets/profile.css';
-const Profile = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    const id = user.id;
-    const sdt = user.sdt;
-    const [name, setName] = useState(user.name);
-    const [password, setPassword] = useState(user.password);
-    const [avt, setAvt] = useState(user.avt);
-    const role = user.role;
-    const [err, setErr] = useState("");
-    const [file, setFile] = useState("");
-    const [preview, setPreview] = useState(null);
 
+/**
+ * Component hồ sơ cá nhân sinh viên
+ */
+const Profile = () => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const { id, sdt, name: initialName, password: initialPassword, avt: initialAvt, role } = user;
+
+    const [name, setName] = useState(initialName);
+    const [password, setPassword] = useState('');
+    const [avatar, setAvatar] = useState(initialAvt);
+    const [error, setError] = useState('');
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
+    const token = localStorage.getItem('token');
+
+    /**
+     * Xử lý khi người dùng chọn file ảnh
+     * @param {Event} event - Sự kiện input file
+     */
     const handleFileChange = (event) => {
-        const selectedFile = event.target.files[0];
-        setFile(event.target.files[0]);
-        if (selectedFile) {
+        const file = event.target.files[0];
+        setSelectedFile(file);
+
+        if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                setPreview(e.target.result); // Lưu URL của ảnh vào state
+                setPreviewUrl(e.target.result);
             };
-            reader.readAsDataURL(selectedFile);
+            reader.readAsDataURL(file);
         }
     };
+
+    /**
+     * Cập nhật đường dẫn avatar khi file thay đổi
+     */
     useEffect(() => {
-        if (file) {
-            setAvt("/images/" + file.name);
+        if (selectedFile) {
+            setAvatar(`/images/${selectedFile.name}`);
         }
-    }, [file]);
-    const token = localStorage.getItem("token");
+    }, [selectedFile]);
+
+    /**
+     * Xử lý submit form cập nhật hồ sơ
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+
         const formData = new FormData();
-        formData.append("file", file);
-        const user1 = { id, name, password, sdt, role, avt }
-        formData.append("user", new Blob([JSON.stringify(user1)], { type: "application/json" }));
+        if (selectedFile) {
+            formData.append('file', selectedFile);
+        }
+
+        const updatedUser = { id, name, password, sdt, role, avt: avatar };
+        formData.append(
+            'user',
+            new Blob([JSON.stringify(updatedUser)], { type: 'application/json' })
+        );
+
         try {
-            const res = await axios.post("http://localhost:8080/sinh-vien/profile",
+            const response = await axios.post(
+                'http://localhost:8080/sinh-vien/profile',
                 formData,
                 {
                     headers: {
                         Authorization: token,
-                        "Content-Type": "multipart/form-data",
+                        'Content-Type': 'multipart/form-data',
                     },
                 }
             );
-            localStorage.setItem("user", JSON.stringify(user1));
-            alert(res.data);
-        }
-        catch (error) {
-            setErr(error.message);
+
+            // Cập nhật localStorage
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            alert(response.data);
+        } catch (err) {
+            console.error('Lỗi cập nhật hồ sơ:', err);
+            setError(err.message);
         }
     };
+
     return (
         <div className="than">
             <h2>Trang cá nhân</h2>
             <form onSubmit={handleSubmit}>
-                {!preview && <img src={avt} alt="Xem trước ảnh"  id="avt1"/>}
-                {preview && <img src={preview} alt="Xem trước ảnh"  id="avt1" />}
+                {/* Hiển thị ảnh avatar */}
+                <img
+                    src={previewUrl || avatar}
+                    alt="Avatar"
+                    id="avt1"
+                />
+
+                {/* Input chọn file ảnh */}
                 <input
                     type="file"
                     id="fileInput"
                     onChange={handleFileChange}
                     accept="image/*"
-                /><br/>
-                <label>ID: <input type="text" disabled id='id' value={id}></input></label><br />
-                <label>Name: <input type="text" id='name' onChange={(e) => { setName(e.target.value) }} value={name} required></input></label><br />
-                <label>SĐT: <input type="text" id="SDT" disabled value={sdt}></input></label><br />
-                <label>Password: <input type="text" id="pw" onChange={(e) => { setPassword(e.target.value) }} required></input></label><br />
+                />
+                <br />
+
+                {/* Các trường thông tin */}
+                <label>
+                    ID:
+                    <input
+                        type="text"
+                        id="id"
+                        value={id}
+                        disabled
+                    />
+                </label>
+                <br />
+
+                <label>
+                    Tên:
+                    <input
+                        type="text"
+                        id="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                    />
+                </label>
+                <br />
+
+                <label>
+                    SĐT:
+                    <input
+                        type="text"
+                        id="sdt"
+                        value={sdt}
+                        disabled
+                    />
+                </label>
+                <br />
+
+                <label>
+                    Mật khẩu:
+                    <input
+                        type="password"
+                        id="pw"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                </label>
+                <br />
+
                 <button type="submit">Sửa hồ sơ</button>
             </form>
-            <p>{err}</p>
+
+            {/* Hiển thị lỗi nếu có */}
+            {error && <p className="error-message">{error}</p>}
         </div>
     );
-}
-const UserDashboard = () => {
+};
+
+/**
+ * Component dashboard cho sinh viên
+ */
+const SinhVienHome = () => {
     return (
         <div>
             <HeaderSinhVien />
@@ -85,4 +171,4 @@ const UserDashboard = () => {
     );
 };
 
-export default UserDashboard;
+export default SinhVienHome;

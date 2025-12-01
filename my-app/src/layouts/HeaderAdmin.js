@@ -1,47 +1,61 @@
 import '../assets/headerAdmin.css';
 import { useEffect, useState } from 'react';
-const Avt=()=>{
-    return(
+
+/**
+ * Component menu avatar cho admin
+ */
+const AvatarMenu = () => {
+    return (
         <div>
-            <a href='/admin/profile'>Hồ sơ</a>
-            <a href='/logout'>Đăng xuất</a>
+            <a href="/admin/profile">Hồ sơ</a>
+            <a href="/logout">Đăng xuất</a>
         </div>
     );
-}
-const HeaderAdmin=()=>{
-    const [avtMD,setAvtMD]=useState("/images/avtMD.png");
-    const [menu, setMenu] = useState(null);
-    useEffect(()=>{
-        const user=localStorage.getItem('user');
-        if(user &&JSON.parse(user).avt!=='none'){
-            setAvtMD(JSON.parse(user).avt);
+};
+
+/**
+ * Component header cho admin
+ */
+const HeaderAdmin = () => {
+    const [avatarUrl, setAvatarUrl] = useState('/images/avtMD.png');
+    const [activeMenu, setActiveMenu] = useState(null);
+
+    // Tải avatar người dùng từ localStorage khi component mount
+    useEffect(() => {
+        const userString = localStorage.getItem('user');
+        if (userString) {
+            const user = JSON.parse(userString);
+            if (user.avt && user.avt !== 'none') {
+                setAvatarUrl(user.avt);
+            }
         }
-    },[]);
-    const bam=(type)=>{
-        if(type===menu){
-            setMenu(null);
-        }
-        else{
-            setMenu(type);
-        }
-    }
-    return(
+    }, []);
+
+    /**
+     * Bật/tắt menu
+     * @param {string} menuType - Loại menu cần bật/tắt
+     */
+    const handleMenuToggle = (menuType) => {
+        setActiveMenu(activeMenu === menuType ? null : menuType);
+    };
+
+    return (
         <div className="header">
-            <a href='/admin/duyet-don-thu-thu'>Duyệt đơn làm thủ thư</a>
-            <a href='/'>Thiết lập cấu hình</a>
-            <a href='/'>Theo dõi báo cáo và thống kê</a>
-            <img src={avtMD} alt='avatar' id='avt' onClick={()=>{bam('avt')}}/>
-            <div class="phu">
-                {(() => {
-                    if (menu === "avt") {
-                        return <Avt />;
-                    }
-                    else {
-                        return null;
-                    }
-                })()}
+            <a href="/admin/duyet-don-thu-thu">Duyệt đơn làm thủ thư</a>
+            <a href="/">Thiết lập cấu hình</a>
+            <a href="/">Theo dõi báo cáo và thống kê</a>
+            <img
+                src={avatarUrl}
+                alt="avatar"
+                id="avt"
+                onClick={() => handleMenuToggle('avt')}
+            />
+            <div className="phu">
+                {/* Hiển thị menu avatar khi activeMenu = 'avt' */}
+                {activeMenu === 'avt' && <AvatarMenu />}
             </div>
         </div>
     );
-}
+};
+
 export default HeaderAdmin;

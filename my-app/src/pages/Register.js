@@ -1,56 +1,134 @@
-import axios from "axios";
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import axios from 'axios';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+/**
+ * Component trang đăng ký
+ */
 const Register = () => {
-    const [sdt, setSdt] = useState("");
-    const [password, setPassword] = useState("");
-    const [name, setName] = useState("");
-    const [error, setError] = useState("");
-    const [imageSrc, setImageSrc] = useState("images/hien.png");
-    const [pwSrc, setPwSrc] = useState("password");
+    const [sdt, setSdt] = useState('');
+    const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+    const [error, setError] = useState('');
+    const [passwordInputType, setPasswordInputType] = useState('password');
+    const [passwordIconSrc, setPasswordIconSrc] = useState('images/hien.png');
     const navigate = useNavigate();
-    const changemk = function () {
-        if (imageSrc === "images/hien.png") {
-            setPwSrc("text");
-            setImageSrc("images/ko_hien.png");
-        }
-        else {
-            setPwSrc("password");
-            setImageSrc("images/hien.png");
+
+    // URL API
+    const REGISTER_API_URL = 'http://localhost:8080/register';
+    const SHOW_PASSWORD_ICON = 'images/hien.png';
+    const HIDE_PASSWORD_ICON = 'images/ko_hien.png';
+
+    /**
+     * Bật/tắt hiển thị mật khẩu
+     */
+    const handleTogglePasswordVisibility = () => {
+        if (passwordInputType === 'password') {
+            setPasswordInputType('text');
+            setPasswordIconSrc(HIDE_PASSWORD_ICON);
+        } else {
+            setPasswordInputType('password');
+            setPasswordIconSrc(SHOW_PASSWORD_ICON);
         }
     };
-    const handleReg = async (e) => {
+
+    /**
+     * Xử lý đăng ký
+     * @param {Event} e - Sự kiện submit form
+     */
+    const handleRegister = async (e) => {
         e.preventDefault();
+        setError('');
+
         try {
-            const res = await axios.post("http://localhost:8080/register",{sdt,password,name});
-            const user = JSON.stringify(res.data);
-            localStorage.setItem('user', user);
-            const token = res.headers["authorization"];
+            const response = await axios.post(REGISTER_API_URL, {
+                sdt,
+                password,
+                name,
+            });
+
+            // Lưu user info vào localStorage
+            const userInfo = JSON.stringify(response.data);
+            localStorage.setItem('user', userInfo);
+
+            // Lưu token vào localStorage
+            const token = response.headers['authorization'];
             localStorage.setItem('token', token);
-            console.log(user, token);
+
+            console.log('Đăng ký thành công:', userInfo);
+
+            // Điều hướng tới trang hồ sơ sinh viên
             navigate('/sinh-vien/profile');
-        }
-        catch (err) {
-            setError("Số điện thoại đã tồn tại!");
+        } catch (err) {
+            console.error('Lỗi đăng ký:', err);
+            setError('Số điện thoại đã tồn tại!');
         }
     };
+
+    /**
+     * Điều hướng tới trang đăng nhập
+     */
+    const handleNavigateToLogin = () => {
+        navigate('/login');
+    };
+
     return (
         <div className="login">
-            <h2>Register</h2>
-            <form onSubmit={handleReg}>
-                <input type="text" value={sdt} onChange={(e) => setSdt(e.target.value)} placeholder="SDT" required id="id" />
+            <h2>Đăng Ký</h2>
+            <form onSubmit={handleRegister}>
+                {/* Input số điện thoại */}
+                <input
+                    type="text"
+                    id="id"
+                    value={sdt}
+                    onChange={(e) => setSdt(e.target.value)}
+                    placeholder="Số điện thoại"
+                    required
+                />
+                <br />
+
+                {/* Input mật khẩu */}
                 <div className="pw">
-                    <input type={pwSrc} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mật khẩu" required id="pw" />
-                    <img src={imageSrc} alt="mk" onClick={changemk} />
+                    <input
+                        type={passwordInputType}
+                        id="pw"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Mật khẩu"
+                        required
+                    />
+                    <img
+                        src={passwordIconSrc}
+                        alt="toggle password visibility"
+                        onClick={handleTogglePasswordVisibility}
+                        style={{ cursor: 'pointer' }}
+                    />
                 </div>
-                <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="name" required id="id" />
+
+                {/* Input tên */}
+                <input
+                    type="text"
+                    id="id"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Tên"
+                    required
+                />
+                <br />
+
+                {/* Buttons */}
                 <div className="c2nut">
-                    <button type="submit">Đăng Kí</button>
-                    <button type="button" onClick={()=> navigate('/login')} id="nut_dn">Đăng nhập</button>
+                    <button type="submit">Đăng Ký</button>
+                    <button type="button" onClick={handleNavigateToLogin} id="login-btn">
+                        Đăng Nhập
+                    </button>
                 </div>
-                <p id="h">{error}</p>
+
+                {/* Error message */}
+                {error && <p className="error-message">{error}</p>}
             </form>
         </div>
     );
 };
+
 export default Register;

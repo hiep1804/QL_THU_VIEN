@@ -1,56 +1,97 @@
-import HeaderSinhVien from "../layouts/headerSinhVien";
-import { useState,useEffect } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-export default function MuonSach(){
-    const [sach,setSach]=useState([]);
-    const [timKiem,setTimKiem]=useState("");
-    const [tim,setTim]=useState("");
-    const token=localStorage.getItem("token");
-    const navigate=useNavigate();
-    useEffect(()=>{
-        const layData=async () => {
+import HeaderSinhVien from '../layouts/HeaderSinhVien';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
+/**
+ * Component danh sách sách để mượn
+ */
+export default function SinhVienMuonSach() {
+    const [books, setBooks] = useState([]);
+    const [searchInput, setSearchInput] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const token = localStorage.getItem('token');
+    const navigate = useNavigate();
+
+    // URL API
+    const BOOKS_API_URL = 'http://localhost:8080/sinh-vien/sach';
+
+    // Tải danh sách sách từ API
+    useEffect(() => {
+        const fetchBooks = async () => {
             try {
-                const res = await axios.get("http://localhost:8080/sinh-vien/sach", {
-                    params: { tim },
+                const response = await axios.get(BOOKS_API_URL, {
+                    params: { tim: searchQuery },
                     headers: {
-                      Authorization: token,
-                      "Content-Type": "application/json"
-                    }
+                        Authorization: token,
+                        'Content-Type': 'application/json',
+                    },
                 });
-                setSach(res.data);
-            } catch (err) {
-                console.log(err);
+                setBooks(response.data);
+            } catch (error) {
+                console.error('Lỗi tải danh sách sách:', error);
             }
-        }
-        layData();
-    },[tim]);
-    const handleSubmit=(e)=>{
+        };
+
+        fetchBooks();
+    }, [searchQuery]);
+
+    /**
+     * Xử lý submit form tìm kiếm
+     */
+    const handleSearchSubmit = (e) => {
         e.preventDefault();
-        setTim(timKiem);
-    }
-    return(
+        setSearchQuery(searchInput);
+    };
+
+    /**
+     * Xử lý click vào sách để xem chi tiết
+     */
+    const handleBookClick = (bookId) => {
+        navigate(`/sinh-vien/muon-sach/${bookId}`);
+    };
+
+    return (
         <div>
-            <HeaderSinhVien/>
+            <HeaderSinhVien />
             <div className="tt_sach_l" style={{width:"100%"}}>
-                <form className='tim_kiem' onSubmit={handleSubmit}>
-                    <input type="search" placeholder="Tìm kiếm sách" onChange={(e)=>{setTimKiem(e.target.value)}}/>
+                {/* Form tìm kiếm */}
+                <form className="tim_kiem" onSubmit={handleSearchSubmit}>
+                    <input
+                        type="search"
+                        placeholder="Tìm kiếm sách"
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                    />
                     <button type="submit">
-                        <img src="/images/tim_kiem.png" alt="tìm kiếm"/>
+                        <img src="/images/tim_kiem.png" alt="tìm kiếm" />
                     </button>
                 </form>
+
+                {/* Danh sách sách */}
                 <div>
-                    {sach.length>0?sach.map((s)=>(
-                        <div className="sach" key={s.id} style={{cursor:"pointer"}} onClick={()=>navigate(`/sinh-vien/muon-sach/${s.id}`)}>
-                            <img src={s.avt} alt="avt" />
-                            <div className="sach_info">
-                                <p className="sach_name">{s.name}</p>
-                                <p><strong>Danh mục:</strong> {s.danhMuc}</p>
-                                <p><strong>Tác giả:</strong> {s.tacGia}</p>
+                    {books.length > 0 ? (
+                        books.map((book) => (
+                            <div
+                                className="sach"
+                                key={book.id}
+                                onClick={() => handleBookClick(book.id)}
+                            >
+                                <img src={book.avt} alt={book.name} />
+                                <div className="sach_info">
+                                    <p className="sach_name">{book.name}</p>
+                                    <p>
+                                        <strong>Danh mục:</strong> {book.danhMuc}
+                                    </p>
+                                    <p>
+                                        <strong>Tác giả:</strong> {book.tacGia}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                    )):
-                    (<p>Không tìm thấy sách</p>)}
+                        ))
+                    ) : (
+                        <p className="no-results">Không tìm thấy sách</p>
+                    )}
                 </div>
             </div>
         </div>
